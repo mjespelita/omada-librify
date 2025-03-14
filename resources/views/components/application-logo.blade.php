@@ -1,1 +1,1 @@
-<img src="{{ url('assets/logo.png') }}" alt="" height="100px" width="100px">
+<img src="{{ url('assets/librify-logo.png') }}" alt="" height="100px" width="100px">

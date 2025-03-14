@@ -31,7 +31,7 @@
         {{-- <tr>
             <th>Uploaded By</th>
             <td>{{ $item->users->name ?? "no data" }}</td>
-        </tr> --}}
+        </tr> --}}  
     
                     <tr>
                         <th>Created At</th>
@@ -43,6 +43,8 @@
                     </tr>
                 </table>
             </div>
+
+
         </div>
     </div>
 

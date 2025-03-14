@@ -15,4 +15,9 @@ protected $fillable = ["customerId","name","description","users_id","isTrash"];
     {
         return $this->belongsTo(User::class, 'users_id');
     }
+
+    public function sites()
+    {
+        return $this->hasMany(Sites::class, 'customerId');
+    }
 }

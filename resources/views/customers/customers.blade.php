@@ -76,8 +76,8 @@
                             <th scope='col'>
                             <input type='checkbox' name='' id='' class='checkAll'>
                             </th>
-                            <th>Customer ID</th>
                             <th>Name</th>
+                            <th>Sites</th>
                             <th>Description</th>
                             {{-- <th>Uploaded By</th> --}}
                             <th>Actions</th>
@@ -90,8 +90,8 @@
                                 <th scope='row'>
                                     <input type='checkbox' name='' id='' class='check' data-id='{{ $item->id }}'>
                                 </th>
-                                <td>{{ $item->customerId }}</td>
                                 <td>{{ $item->name }}</td>
+                                <td>{{ App\Models\Sites::where('customerId', $item->customerId)->count() }}</td>
                                 <td>{{ empty($item->description) ? "no description" : $item->description }}</td>
                                 {{-- <td>{{ $item->users->name ?? "no data" }}</td> --}}
                                 <td>
