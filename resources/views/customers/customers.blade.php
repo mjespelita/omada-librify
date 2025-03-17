@@ -70,7 +70,7 @@
             </div>
 
             <div class='table-responsive mt-5'>
-                <table class='table table-striped'>
+                <table class='table table-striped table-bordered'>
                     <thead>
                         <tr>
                             <th scope='col'>
@@ -95,7 +95,7 @@
                                 <td>{{ empty($item->description) ? "no description" : $item->description }}</td>
                                 {{-- <td>{{ $item->users->name ?? "no data" }}</td> --}}
                                 <td>
-                                    <a href='{{ route('customers.show', $item->id) }}'><i class='fas fa-eye text-success'></i></a>
+                                    <a href='{{ route('customers.show', $item->customerId) }}'><i class='fas fa-eye text-success'></i></a>
                                     {{-- <a href='{{ route('customers.edit', $item->id) }}'><i class='fas fa-edit text-info'></i></a>
                                     <a href='{{ route('customers.delete', $item->id) }}'><i class='fas fa-trash text-danger'></i></a> --}}
                                 </td>

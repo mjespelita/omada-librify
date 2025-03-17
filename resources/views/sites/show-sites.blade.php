@@ -33,55 +33,86 @@
         <div class="p-2">
             <b class="text-secondary">Monitoring</b>
         </div>
-        <a href='{{ url('show-sites/'.$item->id) }}' class='{{ request()->is('show-sites/*') ? 'active' : '' }}'><i class='fas fa-tachometer-alt'></i> Dashboard</a>
-        <a href='{{ url('customers') }}' class='{{ request()->is('customers', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
+        <a href='{{ url('show-sites/'.$item->siteId) }}' class='{{ request()->is('show-sites/*') ? 'active' : '' }}'><i class='fas fa-tachometer-alt'></i> Dashboard</a>
+        <a href='{{ url('statistics/'.$item->siteId) }}' class='{{ request()->is('statistics/*', 'trash-statistics', 'create-statistics', 'show-statistics/*', 'edit-statistics/*', 'delete-statistics/*', 'statistics-search*') ? 'active' : '' }}'>
             <i class="fas fa-line-chart"></i> Statistics
         </a>
-        <a href='{{ url('customers') }}' class='{{ request()->is('customers', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
+        <a href='{{ url('devices/'.$item->siteId) }}' class='{{ request()->is('devices/*', 'trash-devices', 'create-devices', 'show-devices/*', 'edit-devices/*', 'delete-devices/*', 'devices-search*') ? 'active' : '' }}'>
             <i class="fas fa-desktop"></i> Devices
         </a>
-        <a href='{{ url('customers') }}' class='{{ request()->is('customers', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
+        <a href='{{ url('clients/'.$item->siteId) }}' class='{{ request()->is('clients/*', 'trash-clients', 'create-clients', 'show-clients/*', 'edit-clients/*', 'delete-clients/*', 'clients-search*') ? 'active' : '' }}'>
             <i class="fas fa-users"></i> Clients
         </a>
-        <a href='{{ url('customers') }}' class='{{ request()->is('customers', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
+        <a href='{{ url('insights/'.$item->siteId) }}' class='{{ request()->is('insights/*', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
             <i class="fas fa-chart-line"></i> Insights
         </a>
-        <a href='{{ url('customers') }}' class='{{ request()->is('customers', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
+        <a href='{{ url('logs/'.$item->siteId) }}' class='{{ request()->is('logs/*', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
             <i class="fas fa-clipboard-list"></i> Logs
         </a>
         <a href='{{ url('customers') }}' class='{{ request()->is('customers', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
-            <i class="fas fa-history"></i> Audit Logs
-        </a>
-        <a href='{{ url('customers') }}' class='{{ request()->is('customers', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
             <i class="fas fa-file-alt"></i> Reports
-        </a>
-        
-        <div class="p-2">
-            <b class="text-secondary">Tools</b>
-        </div>
-        
-        <a href='{{ url('customers') }}' class='{{ request()->is('customers', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
-            <i class="fas fa-map-marked-alt"></i> Map
-        </a>
-        <a href='{{ url('customers') }}' class='{{ request()->is('customers', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
-            <i class="fas fa-cogs"></i> Network Tools
-        </a>
-        
-        <div class="p-2">
-            <b class="text-secondary">Configuration</b>
-        </div>
-        
-        <a href='{{ url('customers') }}' class='{{ request()->is('customers', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
-            <i class="fas fa-cogs"></i> Settings
-        </a>
-        <a href='{{ url('customers') }}' class='{{ request()->is('customers', 'trash-customers', 'create-customers', 'show-customers/*', 'edit-customers/*', 'delete-customers/*', 'customers-search*') ? 'active' : '' }}'>
-            <i class="fas fa-wifi"></i> Hotspot
         </a>
     </div>
 
     <div class="card">
         <div class="card-body">
-            <div class="row">
+
+            <div class='row'>
+                <div class='col-lg-4 col-md-4 col-sm-12 mt-2'>
+                    <div class='row'>
+                        <div class='col-4'>
+                            <button type='button' class='btn btn-outline-secondary dropdown-toggle' data-bs-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+                                Action
+                            </button>
+                            <div class='dropdown-menu'>
+                                <a class='dropdown-item bulk-move-to-trash' href='#'>
+                                    <i class='fa fa-trash'></i> Move to Trash
+                                </a>
+                                <a class='dropdown-item bulk-delete' href='#'>
+                                    <i class='fa fa-trash'></i> <span class='text-danger'>Delete Permanently</span> <br> <small>(this action cannot be undone)</small>
+                                </a>
+                            </div>
+                        </div>
+                        <div class='col-8'>
+                            <form action='{{ url('/sites-paginate') }}' method='get'>
+                                <div class='input-group'>
+                                    <input type='number' name='paginate' class='form-control' placeholder='Paginate' value='{{ request()->get('paginate', 10) }}'>
+                                    <div class='input-group-append'>
+                                        <button class='btn btn-success' type='submit'><i class='fa fa-bars'></i></button>
+                                    </div>
+                                </div>
+                                @csrf
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class='col-lg-4 col-md-4 col-sm-12 mt-2'>
+                    <form action='{{ url('/sites-filter') }}' method='get'>
+                        <div class='input-group'>
+                            <input type='date' class='form-control' id='from' name='from' required> 
+                            <b class='pt-2'>- to -</b>
+                            <input type='date' class='form-control' id='to' name='to' required>
+                            <div class='input-group-append'>
+                                <button type='submit' class='btn btn-primary form-control'><i class='fas fa-filter'></i></button>
+                            </div>
+                        </div>
+                        @csrf
+                    </form>
+                </div>
+                <div class='col-lg-4 col-md-4 col-sm-12 mt-2'>
+                    <!-- Search Form -->
+                    <form action='{{ url('/sites-search') }}' method='GET'>
+                        <div class='input-group'>
+                            <input type='text' name='search' value='{{ request()->get('search') }}' class='form-control' placeholder='Search...'>
+                            <div class='input-group-append'>
+                                <button class='btn btn-success' type='submit'><i class='fa fa-search'></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row mt-4">
                 <div class="col-lg-3 col-md-4 col-sm-12">
                     <h5>WAN</h5>
                     <h1>{{ $item->wan }}</h1>

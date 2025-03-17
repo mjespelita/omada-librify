@@ -1,20 +1,19 @@
 <?php
 
+use App\Models\Auditlogs;
 use App\Models\Customers;
+use App\Models\Logs;
 use App\Models\Sites;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Smark\Smark\Dater;
 use Smark\Smark\JSON;
-
-// Artisan::command('inspire', function () {
-//     $this->comment(Inspiring::quote());
-// })->purpose('Display an inspiring quote.')->hourly();
 
 Artisan::command('sync', function () {
 
-    // new api key
+    // GENERATE NEW API KEY  ========================================================================================================
 
     function generateNewAPIAccessToken()
     {
@@ -31,10 +30,12 @@ Artisan::command('sync', function () {
         // Decode the response body from JSON to an array
         $responseBody = json_decode($postRequestForNewApiKey->body(), true);  // Decode into an associative array
 
+        Logs::create(['log' => 'A new Access Token has been successfully generated on '.Dater::humanReadableDateWithDayAndTime(date('F j, Y g:i:s'))]);
+
         return JSON::jsonUnshift('public/accessTokenStorage/accessTokens.json', $responseBody['result']);
     }
 
-    // CUSTOMERS
+    // CUSTOMERS ======================================================================================================================
 
     function queryCustomersDataFromTheDatabase($latestAccessTokenParam)
     {
@@ -42,7 +43,7 @@ Artisan::command('sync', function () {
             'Authorization' => 'Bearer AccessToken='.$latestAccessTokenParam, // Replace with your API key
         ])->withOptions([
             'verify' => false,
-        ])->get(env('OMADAC_SERVER').'/openapi/v1/msp/950c1327d64a1b53de3882530e979b99/customers?page=1&pageSize=1000');
+        ])->get(env('OMADAC_SERVER').'/openapi/v1/msp/'.env('OMADAC_ID').'/customers?page=1&pageSize=1000');
 
         Customers::whereNot('id', '')->delete();
 
@@ -58,7 +59,7 @@ Artisan::command('sync', function () {
 
     // END CUSTOMERS
 
-    // SITES
+    // SITES ======================================================================================================================
 
     function querySitesDataFromTheDatabase($latestAccessTokenParam)
     {
@@ -66,7 +67,7 @@ Artisan::command('sync', function () {
             'Authorization' => 'Bearer AccessToken='.$latestAccessTokenParam, // Replace with your API key
         ])->withOptions([
             'verify' => false,
-        ])->get(env('OMADAC_SERVER').'/openapi/v1/msp/950c1327d64a1b53de3882530e979b99/sites?page=1&pageSize=1000');
+        ])->get(env('OMADAC_SERVER').'/openapi/v1/msp/'.env('OMADAC_ID').'/sites?page=1&pageSize=1000');
 
         Sites::whereNot('id', '')->delete();
 
@@ -97,26 +98,66 @@ Artisan::command('sync', function () {
 
     // END SITES
 
+    // AUDIT LOGS ======================================================================================================================
+
+    function queryAuditLogsDataFromTheDatabase($latestAccessTokenParam)
+    {
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer AccessToken='.$latestAccessTokenParam, // Replace with your API key
+        ])->withOptions([
+            'verify' => false,
+        ])->get(env('OMADAC_SERVER').'/openapi/v1/msp/'.env('OMADAC_ID').'/audit-logs?page=1&pageSize=1000');
+
+        Auditlogs::whereNot('id', '')->delete();
+
+        foreach ($response['result']['data'] as $key => $value) {
+            Auditlogs::create([
+                'time' => isset($value['time']) ? $value['time'] : null,
+                'operator' => isset($value['operator']) ? $value['operator'] : null,
+                'resource' => isset($value['resource']) ? $value['resource'] : null,
+                'ip' => isset($value['ip']) ? $value['ip'] : null,
+                'auditType' => isset($value['auditType']) ? $value['auditType'] : null,
+                'level' => isset($value['level']) ? $value['level'] : null,
+                'result' => isset($value['result']) ? $value['result'] : null,
+                'content' => isset($value['content']) ? $value['content'] : null,
+                'content' => isset($value['content']) ? $value['content'] : null,
+                'label' => isset($value['label']) ? $value['label'] : null,
+                'oldValue' => isset($value['oldValue']) ? $value['oldValue'] : null,
+                'newValue' => isset($value['newValue']) ? $value['newValue'] : null,
+            ]);
+        }
+
+        // Return a success response
+        return response()->json([
+            'message' => 'Audit Type data updated successfully!',
+        ]);
+    }
+
+    // END AUDIT LOGS
+
     // get the stored latest access token
 
     $latestAccessToken = JSON::jsonRead('public/accessTokenStorage/accessTokens.json')[0]['accessToken'];
 
-    // check the expiration
+    // CHECKING API ACCESS TOKEN IF EXPIRED ===========================================================================================
 
     $response = Http::withHeaders([
         'Authorization' => 'Bearer AccessToken='.$latestAccessToken, // Replace with your API key
     ])->withOptions([
         'verify' => false,
-    ])->get('https://10.99.0.187:8043/openapi/v1/msp/950c1327d64a1b53de3882530e979b99/general-setting');
+    ])->get(env('OMADAC_SERVER').'/openapi/v1/msp/'.env('OMADAC_ID').'/general-setting');
 
     $expirationBasisThroughErrorCode = $response['errorCode'];
 
-    // if not expired
+    // EXECUTE ========================================================================================================================
 
     if ($expirationBasisThroughErrorCode === 0) {
 
         queryCustomersDataFromTheDatabase($latestAccessToken);
         querySitesDataFromTheDatabase($latestAccessToken);
+        queryAuditLogsDataFromTheDatabase($latestAccessToken);
+
+        Logs::create(['log' => 'The database has been successfully synchronized on '.Dater::humanReadableDateWithDayAndTime(date('F j, Y g:i:s'))]);
         
     } else {
 
@@ -128,6 +169,9 @@ Artisan::command('sync', function () {
 
         queryCustomersDataFromTheDatabase($latestAccessToken);
         querySitesDataFromTheDatabase($latestAccessToken);
+        queryAuditLogsDataFromTheDatabase($latestAccessToken);
+
+        Logs::create(['log' => 'The database has been successfully synchronized on '.Dater::humanReadableDateWithDayAndTime(date('F j, Y g:i:s')).' with new generated Access Token.']);
     }
 
 })->purpose('Sync data from the API.')->everyFiveMinutes();

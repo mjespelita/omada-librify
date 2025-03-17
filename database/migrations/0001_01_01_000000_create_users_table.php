@@ -18,9 +18,9 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 
-            $table->string('role');
-            $table->integer('customers_id');
-            $table->integer('customers_users_id');
+            $table->string('role')->default('admin');
+            $table->integer('customers_id')->default(0);
+            $table->integer('customers_users_id')->default(0);
 
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();

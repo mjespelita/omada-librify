@@ -70,7 +70,7 @@
             </div>
 
             <div class='table-responsive mt-5'>
-                <table class='table table-striped'>
+                <table class='table table-striped table-bordered'>
                     <thead>
                         <tr>
                             <th scope='col'>
@@ -87,7 +87,8 @@
                                 <th scope='row'>
                                     <input type='checkbox' name='' id='' class='check' data-id='{{ $item->id }}'>
                                 </th>
-                                <td>{{ $item->name }}</td><td>{{ $item->customerName }}</td><td>{{ $item->region }}</td><td>{{ $item->timezone }}</td><td>{{ $item->scenario }}</td>
+                                <td>
+                                    <a href="{{ route('sites.show', $item->siteId) }}" class="nav-link text-primary fw-bold">{{ $item->name }}</a></td><td>{{ $item->customerName }}</td><td>{{ $item->region }}</td><td>{{ $item->timezone }}</td><td>{{ $item->scenario }}</td>
                                 <td>
                                     <a href='{{ route('sites.show', $item->siteId) }}'><i class='fas fa-eye text-success'></i></a>
                                     {{-- <a href='{{ route('sites.edit', $item->id) }}'><i class='fas fa-edit text-info'></i></a>

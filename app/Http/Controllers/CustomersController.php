@@ -68,7 +68,7 @@ class CustomersController extends Controller {
     public function show(Customers $customers, $customersId)
     {
         return view('customers.show-customers', [
-            'item' => Customers::where('id', $customersId)->first()
+            'item' => Customers::where('customerId', $customersId)->first()
         ]);
     }
 

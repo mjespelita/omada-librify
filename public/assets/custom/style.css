@@ -4,6 +4,30 @@ body {
     background-color: #e3e3e3;
 }
 
+@font-face {
+    font-family: "Poppins";
+    src: url("https://db.onlinewebfonts.com/t/2f86dc938a55788d3416b876b43a116a.eot");
+    src: url("https://db.onlinewebfonts.com/t/2f86dc938a55788d3416b876b43a116a.eot?#iefix")format("embedded-opentype"),
+    url("https://db.onlinewebfonts.com/t/2f86dc938a55788d3416b876b43a116a.woff2")format("woff2"),
+    url("https://db.onlinewebfonts.com/t/2f86dc938a55788d3416b876b43a116a.woff")format("woff"),
+    url("https://db.onlinewebfonts.com/t/2f86dc938a55788d3416b876b43a116a.ttf")format("truetype"),
+    url("https://db.onlinewebfonts.com/t/2f86dc938a55788d3416b876b43a116a.svg#Poppins")format("svg");
+}
+
+@font-face {
+    font-family: "Montserrat";
+    src: url("https://db.onlinewebfonts.com/t/a81c6ef023e90fb9f87ac017d242a337.eot");
+    src: url("https://db.onlinewebfonts.com/t/a81c6ef023e90fb9f87ac017d242a337.eot?#iefix")format("embedded-opentype"),
+    url("https://db.onlinewebfonts.com/t/a81c6ef023e90fb9f87ac017d242a337.woff2")format("woff2"),
+    url("https://db.onlinewebfonts.com/t/a81c6ef023e90fb9f87ac017d242a337.woff")format("woff"),
+    url("https://db.onlinewebfonts.com/t/a81c6ef023e90fb9f87ac017d242a337.ttf")format("truetype"),
+    url("https://db.onlinewebfonts.com/t/a81c6ef023e90fb9f87ac017d242a337.svg#Montserrat")format("svg");
+}
+
+h1,h2,h3,h4,h5,h6,p,a,span,td{
+    font-family: Poppins !important;
+}
+
 .btn-success, .btn-info, .btn-primary {
     background: #002222 !important;
     border: none;

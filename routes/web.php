@@ -29,12 +29,14 @@ use Illuminate\Support\Facades\Http;
 
 // end of import
 
+use App\Http\Controllers\AuditlogsController;
+use App\Models\Auditlogs;
 
-
+// end of import
 
 
 Route::get('/', function () {
-    return redirect('/dashboard');
+    return view('welcome');
 });
 
 Route::middleware([
@@ -52,12 +54,49 @@ Route::middleware([
 
     Route::get('/proxy', function () {
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer AccessToken=AT-HSuksUepao6Y5cX2MRAMErDt0OUI0Vu1', // Replace with your API key
+            'Authorization' => 'Bearer AccessToken=AT-77In5x0OvaHrA9I53OG90zcecX9iElHI', // Replace with your API key
         ])->withOptions([
             'verify' => false,
         ])->get('https://10.99.0.187:8043/openapi/v1/msp/950c1327d64a1b53de3882530e979b99/customers?page=1&pageSize=1000');
     
         return $response->json();
+    });
+
+    Route::get('/database-sync', function () {
+        $response = Logs::whereDate('created_at', Carbon::today())->get();
+        return $response;
+    });
+
+    // random functions
+    
+    Route::get('/statistics/{siteId}', function ($siteId){
+        return view('sample-frontend.statistics', [
+            'item' => Sites::where('siteId', $siteId)->first()
+        ]);
+    });
+
+    Route::get('/devices/{siteId}', function ($siteId){
+        return view('sample-frontend.devices', [
+            'item' => Sites::where('siteId', $siteId)->first()
+        ]);
+    });
+
+    Route::get('/clients/{siteId}', function ($siteId){
+        return view('sample-frontend.clients', [
+            'item' => Sites::where('siteId', $siteId)->first()
+        ]);
+    });
+
+    Route::get('/insights/{siteId}', function ($siteId){
+        return view('sample-frontend.insights', [
+            'item' => Sites::where('siteId', $siteId)->first()
+        ]);
+    });
+
+    Route::get('/logs/{siteId}', function ($siteId){
+        return view('sample-frontend.logs', [
+            'item' => Sites::where('siteId', $siteId)->first()
+        ]);
     });
 
     // end...
@@ -331,5 +370,89 @@ Route::middleware([
     });
 
     // end...
+
+    Route::get('/auditlogs', [AuditlogsController::class, 'index'])->name('auditlogs.index');
+    Route::get('/create-auditlogs', [AuditlogsController::class, 'create'])->name('auditlogs.create');
+    Route::get('/edit-auditlogs/{auditlogsId}', [AuditlogsController::class, 'edit'])->name('auditlogs.edit');
+    Route::get('/show-auditlogs/{auditlogsId}', [AuditlogsController::class, 'show'])->name('auditlogs.show');
+    Route::get('/delete-auditlogs/{auditlogsId}', [AuditlogsController::class, 'delete'])->name('auditlogs.delete');
+    Route::get('/destroy-auditlogs/{auditlogsId}', [AuditlogsController::class, 'destroy'])->name('auditlogs.destroy');
+    Route::post('/store-auditlogs', [AuditlogsController::class, 'store'])->name('auditlogs.store');
+    Route::post('/update-auditlogs/{auditlogsId}', [AuditlogsController::class, 'update'])->name('auditlogs.update');
+    Route::post('/auditlogs-delete-all-bulk-data', [AuditlogsController::class, 'bulkDelete']);
+    Route::post('/auditlogs-move-to-trash-all-bulk-data', [AuditlogsController::class, 'bulkMoveToTrash']);
+    Route::post('/auditlogs-restore-all-bulk-data', [AuditlogsController::class, 'bulkRestore']);
+    Route::get('/trash-auditlogs', [AuditlogsController::class, 'trash']);
+    Route::get('/restore-auditlogs/{auditlogsId}', [AuditlogsController::class, 'restore'])->name('auditlogs.restore');
+
+    // Auditlogs Search
+    Route::get('/auditlogs-search', function (Request $request) {
+        $search = $request->get('search');
+
+        // Perform the search logic
+        $auditlogs = Auditlogs::when($search, function ($query) use ($search) {
+            return $query->where('name', 'like', "%$search%");
+        })->paginate(10);
+
+        return view('auditlogs.auditlogs', compact('auditlogs', 'search'));
+    });
+
+    // Auditlogs Paginate
+    Route::get('/auditlogs-paginate', function (Request $request) {
+        // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
+        $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
+    
+        // Paginate the auditlogs based on the 'paginate' value
+        $auditlogs = Auditlogs::paginate($paginate); // Paginate with the specified number of items per page
+    
+        // Return the view with the paginated auditlogs
+        return view('auditlogs.auditlogs', compact('auditlogs'));
+    });
+
+    // Auditlogs Filter
+    Route::get('/auditlogs-filter', function (Request $request) {
+        // Retrieve 'from' and 'to' dates from the URL
+        $from = $request->input('from');
+        $to = $request->input('to');
+    
+        // Default query for auditlogs
+        $query = Auditlogs::query();
+    
+        // Convert dates to Carbon instances for better comparison
+        $fromDate = $from ? Carbon::parse($from) : null;
+        $toDate = $to ? Carbon::parse($to) : null;
+    
+        // Check if both 'from' and 'to' dates are provided
+        if ($from && $to) {
+            // If 'from' and 'to' are the same day (today)
+            if ($fromDate->isToday() && $toDate->isToday()) {
+                // Return results from today and include the 'from' date's data
+                $auditlogs = $query->whereDate('created_at', '=', Carbon::today())
+                               ->orderBy('created_at', 'desc')
+                               ->paginate(10);
+            } else {
+                // If 'from' date is greater than 'to' date, order ascending (from 'to' to 'from')
+                if ($fromDate->gt($toDate)) {
+                    $auditlogs = $query->whereBetween('created_at', [$toDate, $fromDate])
+                                   ->orderBy('created_at', 'asc')  // Ascending order
+                                   ->paginate(10);
+                } else {
+                    // Otherwise, order descending (from 'from' to 'to')
+                    $auditlogs = $query->whereBetween('created_at', [$fromDate, $toDate])
+                                   ->orderBy('created_at', 'desc')  // Descending order
+                                   ->paginate(10);
+                }
+            }
+        } else {
+            // If 'from' or 'to' are missing, show all auditlogs without filtering
+            $auditlogs = $query->paginate(10);  // Paginate results
+        }
+    
+        // Return the view with auditlogs and the selected date range
+        return view('auditlogs.auditlogs', compact('auditlogs', 'from', 'to'));
+    });
+
+    // end...
+
 
 });
